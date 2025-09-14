@@ -1,9 +1,13 @@
-from engine.rsa import RSAEngine
+#| ------------------------------------------ |
+__email__   =  "c.ogcae@engineer.com"
+__name__    =  "cryptoforge"
+__version__ =  "1.0.2"
+__author__  =  "ogcae"
+#| ------------------------------------------ |
+
 from core.keypair import RSAKeyPair
-from utils.math import (
-    gcd, extended_euclidean, modular_inverse, fast_modular_exponentiation,
-    lcm, jacobi_symbol, is_perfect_square, factorial, binomial_coefficient
-)
+from engine.rsa import RSAEngine
+
 from utils.encoding import (
     bytes_to_int, int_to_bytes, calculate_byte_length, encode_base64, decode_base64,
     string_to_blocks, blocks_to_string, serialize_key_data, deserialize_key_data,
@@ -13,15 +17,14 @@ from crypto.prime import (
     miller_rabin_test, generate_prime, generate_safe_prime, is_strong_prime,
     generate_prime_pair, find_public_exponent, next_prime
 )
+from utils.math import (
+    gcd, extended_euclidean, modular_inverse, fast_modular_exponentiation,
+    lcm, jacobi_symbol, is_perfect_square, factorial, binomial_coefficient
+)
 from crypto.padding import (
     apply_pkcs1_padding, remove_pkcs1_padding, validate_padding_parameters,
     calculate_max_message_size, verify_padding_integrity
 )
-
-__email__   =  "c.ogcae@engineer.com"
-__name__    =  "cryptoforge"
-__version__ =  "1.0.2"
-__author__  =  "ogcae"
 
 class RSA:
     def __init__(self):
