@@ -1,3 +1,5 @@
+<!-- email: c.ogcae@engineer.com - cryptoforge:v1.0.2 - by ogcae !-->
+
 <div align="center">
   <!-- <img src="docs/banner.png" alt="CryptoForge Banner" width="100%" /> !-->
 </div>
