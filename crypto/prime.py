@@ -1,3 +1,10 @@
+#| ------------------------------------------ |
+__email__   =  "c.ogcae@engineer.com"
+__name__    =  "cryptoforge"
+__version__ =  "1.0.2"
+__author__  =  "ogcae"
+#| ------------------------------------------ |
+
 from utils.math import fast_modular_exponentiation, gcd, miller_rabin_witness
 from typing import Tuple, List
 import secrets
