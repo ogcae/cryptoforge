@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/banner.png" alt="CryptoForge Banner" width="100%" />
+  <!-- <img src="docs/banner.png" alt="CryptoForge Banner" width="100%" /> !-->
 </div>
 
 <table>
@@ -11,16 +11,18 @@
 ```python
 from CryptoForge import RSA
 
-rsa = RSA()
-rsa.generate_key_pair(2048)
+
+rsa = RSA()  ;  rsa.generate_key_pair(2048)
 
 # encrypt and decrypt
 encrypted = rsa.encrypt_text("secret message")
 decrypted = rsa.decrypt_text(encrypted)
+# ------ #
 
 # digital signatures
 signature = rsa.sign_message("document")
 is_valid = rsa.verify_signature("document", signature)
+# ------ #
 ```
 
 </td>
@@ -29,11 +31,10 @@ is_valid = rsa.verify_signature("document", signature)
 ## installation
 
 ```bash
-# clone repository
 git clone https://github.com/ogcae/cryptoforge.git
 cd cryptoforge
 
-# optional: web demo dependencies
+# (optional)
 pip install flask
 ```
 
@@ -73,15 +74,18 @@ pip install flask
 # key management
 public_key = rsa.key_pair.export_public_key()
 private_key = rsa.key_pair.export_private_key()
+# ------ #
 
 # load keys
 rsa2 = RSA()
 rsa2.load_private_key(private_key)
+# ------ #
 
 # long text encryption
 long_text = "very long message..." * 1000
 blocks = rsa.encrypt_long_text(long_text)
 decrypted = rsa.decrypt_long_text(blocks)
+# ------ #
 ```
 </details>
 
@@ -94,10 +98,12 @@ from CryptoForge import RSAEngine, generate_safe_prime
 # modular components
 engine = RSAEngine()
 safe_prime = generate_safe_prime(512, secure=True)
+# ------ #
 
 # performance analysis
 benchmark = rsa.benchmark_performance(iterations=10)
 print(f"encryption: {benchmark['avg_encrypt_time']:.4f}s")
+# ------ #
 ```
 </details>
 
@@ -105,7 +111,7 @@ print(f"encryption: {benchmark['avg_encrypt_time']:.4f}s")
 ```bash
 cd examples/apps/
 python3 encrypted_website.py
-# visit http://localhost:5000
+# visit localhost:5000
 ```
 
 </td>
@@ -120,9 +126,9 @@ python3 encrypted_website.py
 
 | key size | generation | encryption | decryption |
 |----------|------------|------------|------------|
-| 1024-bit | ~0.1s | ~0.001s | ~0.01s |
-| 2048-bit | ~0.5s | ~0.003s | ~0.05s |
-| 4096-bit | ~5s | ~0.01s | ~0.3s |
+| 1024-bit | ~0.1s      | ~0.001s    | ~0.01s     |
+| 2048-bit | ~0.5s      | ~0.003s    | ~0.05s     |
+| 4096-bit | ~5s        | ~0.01s     | ~0.3s      |
 
 </td>
 <td width="50%">
@@ -139,8 +145,6 @@ python3 encrypted_website.py
 </tr>
 </table>
 
-<div align="left">
-
-mit license - [LICENSE](LICENSE) for details || full docs - [DOCS.md](DOCS.md)
-
-</div>
+  
+> [!TIP]
+> Read [documentation](./docs/DOCS.md) & [license](LICENSE).
