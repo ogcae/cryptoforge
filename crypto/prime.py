@@ -118,7 +118,7 @@ def generate_safe_prime(bit_length: int, secure: bool = True) -> int:
         int: Safe prime number
     """
     while True:
-        # Generate Sophie Germain prime q
+        # generate Sophie Germain prime q
         q = generate_prime(bit_length - 1, secure)
         p = 2 * q + 1
         
@@ -241,8 +241,8 @@ def is_carmichael_number(n: int) -> bool:
         return False
     
     # check if n is square-free and composite
-    factors = []
-    temp = n
+    factors  = []
+    temp     = n
     
     for p in SMALL_PRIMES:
         if temp % p == 0:
