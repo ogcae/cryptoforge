@@ -1,3 +1,10 @@
+#| ------------------------------------------ |
+__email__   =  "c.ogcae@engineer.com"
+__name__    =  "cryptoforge"
+__version__ =  "1.0.2"
+__author__  =  "ogcae"
+#| ------------------------------------------ |
+
 from .math import (
     gcd, extended_euclidean, modular_inverse, fast_modular_exponentiation,
     lcm, jacobi_symbol, is_perfect_square, miller_rabin_witness,
