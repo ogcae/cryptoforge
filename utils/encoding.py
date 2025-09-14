@@ -1,3 +1,10 @@
+#| ------------------------------------------ |
+__email__   =  "c.ogcae@engineer.com"
+__name__    =  "cryptoforge"
+__version__ =  "1.0.2"
+__author__  =  "ogcae"
+#| ------------------------------------------ |
+
 from typing import List, Union
 import base64
 import json
