@@ -1,3 +1,10 @@
+#| ------------------------------------------ |
+__email__   =  "c.ogcae@engineer.com"
+__name__    =  "cryptoforge"
+__version__ =  "1.0.2"
+__author__  =  "ogcae"
+#| ------------------------------------------ |
+
 from utils.encoding import encode_base64, decode_base64, serialize_key_data, deserialize_key_data
 from typing import Tuple, Optional
 import json
