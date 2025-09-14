@@ -1,3 +1,5 @@
+<!-- email: c.ogcae@engineer.com - cryptoforge:v1.0.2 - by ogcae !-->
+
 # cryptoforge
 
 > modern rsa encryption library for python
