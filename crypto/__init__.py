@@ -1,3 +1,10 @@
+#| ------------------------------------------ |
+__email__   =  "c.ogcae@engineer.com"
+__name__    =  "cryptoforge"
+__version__ =  "1.0.2"
+__author__  =  "ogcae"
+#| ------------------------------------------ |
+
 from .prime import (
     miller_rabin_test, generate_random_odd, generate_prime, generate_safe_prime,
     is_strong_prime, generate_prime_pair, find_public_exponent,
