@@ -1,490 +1,315 @@
-# CryptoForge Documentation
+# cryptoforge
 
-## Table of Contents
+> modern rsa encryption library for python
 
-1. [Installation](#installation)
-2. [Quick Start](#quick-start)
-3. [Core Classes](#core-classes)
-4. [Key Management](#key-management)
-5. [Encryption & Decryption](#encryption--decryption)
-6. [Digital Signatures](#digital-signatures)
-7. [Advanced Features](#advanced-features)
-8. [Performance](#performance)
-9. [Security Considerations](#security-considerations)
-10. [API Reference](#api-reference)
-11. [Examples](#examples)
+<div align="center">
 
-## Installation
+[![python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://python.org)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![security](https://img.shields.io/badge/security-pkcs1-orange.svg)](#security)
 
-### Requirements
-- Python 3.7+
-- Standard library only (core functionality)
-- Flask (optional, for web demo)
+</div>
 
-### Setup
+## quick start
+
 ```bash
-# clone repository
-git clone https://github.com/ogcae/cryptoforge.git
-cd cryptoforge
-
-# optional: install flask for web demo
-pip install flask
+pip install cryptoforge
 ```
 
-## Quick Start
-
 ```python
-from CryptoForge import RSA
+from cryptoforge import RSA
 
-# create rsa instance
 rsa = RSA()
-
-# generate key pair
 rsa.generate_key_pair(2048)
 
-# encrypt message
-encrypted = rsa.encrypt_text("secret message")
-
-# decrypt message
+# encrypt/decrypt
+encrypted = rsa.encrypt_text("secret")
 decrypted = rsa.decrypt_text(encrypted)
 
-# digital signature
+# sign/verify
 signature = rsa.sign_message("document")
-is_valid = rsa.verify_signature("document", signature)
+valid = rsa.verify_signature("document", signature)
 ```
 
-## Core Classes
+## installation
 
-### RSA
-Main interface for RSA operations. Provides simplified access to all cryptographic functions.
+| method | command |
+|--------|---------|
+| pip | `pip install cryptoforge` |
+| git | `git clone https://github.com/ogcae/cryptoforge.git` |
+| requirements | python 3.7+, standard library |
+| optional | flask (web demo) |
 
-### RSAEngine
-Low-level RSA engine handling core cryptographic operations.
+## core classes
 
-### RSAKeyPair
-Manages RSA key pairs with import/export capabilities.
+| class | purpose | usage |
+|-------|---------|-------|
+| `RSA` | main interface | high-level operations |
+| `RSAEngine` | crypto engine | low-level operations |
+| `RSAKeyPair` | key management | import/export keys |
 
-## Key Management
+## key management
 
-### Generating Keys
+<details>
+<summary><strong>generate keys</strong></summary>
 
 ```python
-# generate 2048-bit key pair
 rsa = RSA()
-key_pair = rsa.generate_key_pair(2048)
-
-# generate with custom parameters
-key_pair = rsa.generate_key_pair(
-    key_size=4096,
-    secure=True  # use cryptographically secure random
-)
+key_pair = rsa.generate_key_pair(2048)                    # standard
+key_pair = rsa.generate_key_pair(4096, secure=True)       # high security
 ```
+</details>
 
-### Exporting Keys
+<details>
+<summary><strong>export/import keys</strong></summary>
+
+| operation | method | returns |
+|-----------|--------|---------|
+| export public | `key_pair.export_public_key()` | base64 json string |
+| export private | `key_pair.export_private_key()` | base64 json string |
+| export both | `key_pair.export_key_pair()` | dictionary |
+| load private | `rsa.load_private_key(key_str)` | none |
+| load public | `rsa.load_public_key(key_str)` | none |
+| from dict | `RSAKeyPair.from_key_pair_dict(dict)` | keypair object |
+
+</details>
+
+<details>
+<summary><strong>key info</strong></summary>
 
 ```python
-# export public key
-public_key = key_pair.export_public_key()
-
-# export private key
-private_key = key_pair.export_private_key()
-
-# export both keys
-key_dict = key_pair.export_key_pair()
+info = rsa.get_key_info()
+# returns: {'key_size': 2048, 'fingerprint': '...', 'has_private_key': True}
 ```
+</details>
 
-### Importing Keys
+## encryption & decryption
+
+| type | method | use case |
+|------|--------|----------|
+| text | `encrypt_text(msg)` / `decrypt_text(enc)` | short messages |
+| long text | `encrypt_long_text(msg)` / `decrypt_long_text(blocks)` | >200 bytes |
+| numbers | `encrypt_number(num)` / `decrypt_number(enc)` | numeric data |
+
+<details>
+<summary><strong>examples</strong></summary>
 
 ```python
-# load private key
-rsa = RSA()
-rsa.load_private_key(private_key_string)
-
-# load public key only
-rsa.load_public_key(public_key_string)
-
-# create from key pair dictionary
-key_pair = RSAKeyPair.from_key_pair_dict(key_dict)
-```
-
-### Key Information
-
-```python
-# get key metadata
-key_info = rsa.get_key_info()
-print(f"Key size: {key_info['key_size']} bits")
-print(f"Fingerprint: {key_info['fingerprint']}")
-print(f"Has private key: {key_info['has_private_key']}")
-```
-
-## Encryption & Decryption
-
-### Basic Text Encryption
-
-```python
-# encrypt text
-message = "confidential data"
-encrypted = rsa.encrypt_text(message)
-
-# decrypt text
+# basic text
+encrypted = rsa.encrypt_text("secret")
 decrypted = rsa.decrypt_text(encrypted)
+
+# long text (auto-chunking)
+blocks = rsa.encrypt_long_text("very long message..." * 1000)
+original = rsa.decrypt_long_text(blocks)
+
+# numbers
+enc_num = rsa.encrypt_number(12345)
+num = rsa.decrypt_number(enc_num)
 ```
+</details>
 
-### Long Text Encryption
+## digital signatures
 
-For messages exceeding RSA block size limits:
+| operation | method | hash algorithms |
+|-----------|--------|-----------------|
+| sign | `sign_message(msg, hash_algorithm='sha256')` | sha256, sha384, sha512 |
+| verify | `verify_signature(msg, sig, hash_algorithm='sha256')` | sha256, sha384, sha512 |
+
+<details>
+<summary><strong>example</strong></summary>
 
 ```python
-# encrypt long text (automatic block splitting)
-long_message = "very long message..." * 1000
-encrypted_blocks = rsa.encrypt_long_text(long_message)
-
-# decrypt long text
-decrypted = rsa.decrypt_long_text(encrypted_blocks)
+signature = rsa.sign_message("document")
+valid = rsa.verify_signature("document", signature)  # True/False
 ```
+</details>
 
-### Number Encryption
+## advanced features
+
+<details>
+<summary><strong>prime generation</strong></summary>
 
 ```python
-# encrypt numbers directly
-number = 12345
-encrypted_num = rsa.encrypt_number(number)
-decrypted_num = rsa.decrypt_number(encrypted_num)
-```
-
-### Encoding Options
-
-```python
-# specify encoding
-encrypted = rsa.encrypt_text("message", encoding='utf-8')
-decrypted = rsa.decrypt_text(encrypted, encoding='utf-8')
-```
-
-## Digital Signatures
-
-### Creating Signatures
-
-```python
-# sign with default sha256
-signature = rsa.sign_message("document content")
-
-# sign with specific hash algorithm
-signature = rsa.sign_message(
-    "document content",
-    hash_algorithm='sha512'
-)
-```
-
-### Verifying Signatures
-
-```python
-# verify signature
-is_valid = rsa.verify_signature(
-    "document content",
-    signature,
-    hash_algorithm='sha256'
-)
-```
-
-### Supported Hash Algorithms
-
-- `sha256` (default)
-- `sha384`
-- `sha512`
-
-## Advanced Features
-
-### Safe Prime Generation
-
-```python
-from CryptoForge import generate_safe_prime, is_strong_prime
-
-# generate safe prime
+from cryptoforge import generate_safe_prime, is_strong_prime
 safe_prime = generate_safe_prime(512, secure=True)
-
-# check if prime is strong
 is_strong = is_strong_prime(safe_prime)
 ```
+</details>
 
-### Modular Components
+<details>
+<summary><strong>low-level components</strong></summary>
 
 ```python
-from CryptoForge import RSAEngine, apply_pkcs1_padding
-
-# use rsa engine directly
+from cryptoforge import RSAEngine, apply_pkcs1_padding
 engine = RSAEngine()
 key_pair = engine.generate_key_pair(2048)
-
-# apply padding manually
-padded_data = apply_pkcs1_padding(b"data", 256)
+padded = apply_pkcs1_padding(b"data", 256)
 ```
+</details>
 
-### Mathematical Utilities
+<details>
+<summary><strong>math utilities</strong></summary>
 
 ```python
-from CryptoForge import gcd, fast_modular_exponentiation
-
-# mathematical operations
+from cryptoforge import gcd, fast_modular_exponentiation
 result_gcd = gcd(48, 18)
 result_mod = fast_modular_exponentiation(3, 100, 7)
 ```
+</details>
 
-### Cross-Platform Key Exchange
+## performance
 
-```python
-# sender
-sender = RSA()
-sender.generate_key_pair(2048)
-sender_public = sender.key_pair.export_public_key()
+| key size | generation | encryption | decryption | security |
+|----------|------------|------------|------------|----------|
+| 1024-bit | ~0.1s | ~0.001s | ~0.01s | legacy |
+| 2048-bit | ~0.5s | ~0.003s | ~0.05s | standard |
+| 4096-bit | ~5s | ~0.01s | ~0.3s | high |
 
-# receiver
-receiver = RSA()
-receiver.load_public_key(sender_public)
-encrypted = receiver.encrypt_text("message for sender")
-
-# sender decrypts
-decrypted = sender.decrypt_text(encrypted)
-```
-
-## Performance
-
-### Benchmarking
+<details>
+<summary><strong>benchmark</strong></summary>
 
 ```python
-# run performance benchmark
 benchmark = rsa.benchmark_performance(iterations=10)
-
-print(f"Encryption time: {benchmark['avg_encrypt_time']:.4f}s")
-print(f"Decryption time: {benchmark['avg_decrypt_time']:.4f}s")
-print(f"Encryption ops/sec: {benchmark['encrypt_ops_per_sec']:.2f}")
+# returns: {'avg_encrypt_time': 0.003, 'avg_decrypt_time': 0.05, ...}
 ```
+</details>
 
-### Performance Guidelines
+<details>
+<summary><strong>optimization tips</strong></summary>
 
-| Key Size | Generation | Encryption | Decryption | Security Level |
-|----------|------------|------------|------------|----------------|
-| 1024-bit | ~0.1s | ~0.001s | ~0.01s | Legacy |
-| 2048-bit | ~0.5s | ~0.003s | ~0.05s | Standard |
-| 4096-bit | ~5s | ~0.01s | ~0.3s | High Security |
+- use 2048-bit for standard, 4096-bit for high security
+- use `encrypt_long_text()` for messages >200 bytes  
+- generate keys once, reuse for multiple operations
+- set `secure=False` for testing (faster generation)
+</details>
 
-### Optimization Tips
+## security
 
-1. **Key Size**: Use 2048-bit for standard security, 4096-bit for high security
-2. **Long Text**: Use `encrypt_long_text()` for messages > 200 bytes
-3. **Batch Operations**: Generate keys once, reuse for multiple operations
-4. **Secure Random**: Set `secure=False` for testing (faster key generation)
+| feature | implementation | protection |
+|---------|----------------|------------|
+| key generation | miller-rabin primality test | key recovery attacks |
+| padding | pkcs#1 v1.5 standard | padding oracle attacks |
+| random generation | cryptographically secure | predictable keys |
+| hash algorithms | sha256/384/512 | collision attacks |
+| safe primes | p = 2q + 1 format | weak key generation |
 
-## Security Considerations
+<details>
+<summary><strong>best practices</strong></summary>
 
-### Best Practices
+- minimum 2048-bit keys for production
+- always use `secure=True` in production  
+- store private keys securely, never plain text
+- use sha-256 or higher for signatures
+- pkcs#1 v1.5 padding applied automatically
+</details>
 
-1. **Key Size**: Minimum 2048-bit keys for production
-2. **Random Generation**: Always use `secure=True` in production
-3. **Key Storage**: Store private keys securely, never in plain text
-4. **Padding**: PKCS#1 v1.5 padding is applied automatically
-5. **Hash Algorithms**: Use SHA-256 or higher for signatures
+<details>
+<summary><strong>threat protection</strong></summary>
 
-### Security Features
+- eavesdropping → encryption
+- message tampering → digital signatures  
+- key recovery → secure generation
+- padding oracle → proper pkcs#1
+</details>
 
-- Cryptographically secure random number generation
-- PKCS#1 v1.5 padding standard implementation
-- Miller-Rabin primality testing with multiple rounds
-- Safe prime generation (p = 2q + 1)
-- Multiple hash algorithm support
+## api reference
 
-### Threat Model
+<details>
+<summary><strong>RSA class</strong></summary>
 
-CryptoForge protects against:
-- Eavesdropping (encryption)
-- Message tampering (digital signatures)
-- Key recovery attacks (secure key generation)
-- Padding oracle attacks (proper PKCS#1 implementation)
+| method | parameters | returns |
+|--------|------------|---------|
+| `generate_key_pair()` | `key_size=2048, seed=None, secure=True` | RSAKeyPair |
+| `encrypt_text()` | `message, encoding='utf-8'` | base64 string |
+| `decrypt_text()` | `encrypted_message, encoding='utf-8'` | original string |
+| `encrypt_long_text()` | `message, encoding='utf-8'` | list of blocks |
+| `decrypt_long_text()` | `encrypted_blocks, encoding='utf-8'` | original string |
+| `sign_message()` | `message, encoding='utf-8', hash_algorithm='sha256'` | base64 signature |
+| `verify_signature()` | `message, signature, encoding='utf-8', hash_algorithm='sha256'` | boolean |
+| `load_public_key()` | `public_key_str` | none |
+| `load_private_key()` | `private_key_str` | none |
+| `get_key_info()` | none | metadata dict |
+| `benchmark_performance()` | `iterations=10` | performance dict |
 
-## API Reference
+**property:** `key_pair` → returns current RSAKeyPair object
 
-### RSA Class
+</details>
 
-#### Methods
+<details>
+<summary><strong>RSAKeyPair class</strong></summary>
 
-**`generate_key_pair(key_size=2048, seed=None, secure=True)`**
-- Generates new RSA key pair
-- Returns: RSAKeyPair object
+| method | returns |
+|--------|---------|
+| `export_public_key()` | base64 json string |
+| `export_private_key()` | base64 json string |
+| `export_key_pair()` | dictionary |
+| `from_public_key_string(key_str)` | keypair object |
+| `from_private_key_string(key_str)` | keypair object |
+| `has_private_key()` | boolean |
 
-**`encrypt_text(message, encoding='utf-8')`**
-- Encrypts text message
-- Returns: Base64-encoded encrypted string
+**property:** `key_size` → returns key size in bits
 
-**`decrypt_text(encrypted_message, encoding='utf-8')`**
-- Decrypts text message
-- Returns: Original text string
+</details>
 
-**`encrypt_long_text(message, encoding='utf-8')`**
-- Encrypts long text with automatic blocking
-- Returns: List of encrypted blocks
+<details>
+<summary><strong>utility functions</strong></summary>
 
-**`decrypt_long_text(encrypted_blocks, encoding='utf-8')`**
-- Decrypts long text from blocks
-- Returns: Original text string
+| function | purpose |
+|----------|---------|
+| `generate_safe_prime(bit_length, secure=True)` | safe prime generation |
+| `is_strong_prime(p)` | prime strength test |
+| `miller_rabin_test(n, k=10, secure=True)` | primality test |
+| `apply_pkcs1_padding(msg, target_len, type='encryption')` | manual padding |
+| `gcd(a, b)` | greatest common divisor |
+| `fast_modular_exponentiation(base, exp, mod)` | modular math |
 
-**`sign_message(message, encoding='utf-8', hash_algorithm='sha256')`**
-- Creates digital signature
-- Returns: Base64-encoded signature
+</details>
 
-**`verify_signature(message, signature, encoding='utf-8', hash_algorithm='sha256')`**
-- Verifies digital signature
-- Returns: Boolean validity
+## examples & demos
 
-**`load_public_key(public_key_str)`**
-- Loads public key from string
+| type | command | description |
+|------|---------|-------------|
+| web demo | `python3 examples/apps/encrypted_website.py` | http://localhost:5000 |
+| basic usage | `python3 examples/basic.py` | simple encryption |
+| advanced | `python3 examples/advanced.py` | full features |
 
-**`load_private_key(private_key_str)`**
-- Loads private key from string
+## error handling
 
-**`get_key_info()`**
-- Returns key metadata dictionary
+| exception | causes | solution |
+|-----------|--------|----------|
+| `ValueError` | invalid key size, message too long, bad padding | use proper parameters |
+| `ModuleNotFoundError` | missing flask | `pip install flask` |
 
-**`benchmark_performance(iterations=10)`**
-- Runs performance benchmark
-- Returns: Performance metrics dictionary
-
-#### Properties
-
-**`key_pair`**
-- Returns current RSAKeyPair object
-
-### RSAKeyPair Class
-
-#### Methods
-
-**`export_public_key()`**
-- Exports public key as base64 JSON string
-
-**`export_private_key()`**
-- Exports private key as base64 JSON string
-
-**`export_key_pair()`**
-- Exports both keys as dictionary
-
-**`from_public_key_string(key_string)`** (class method)
-- Creates key pair from public key string
-
-**`from_private_key_string(key_string)`** (class method)
-- Creates key pair from private key string
-
-**`has_private_key()`**
-- Returns boolean indicating private key presence
-
-#### Properties
-
-**`key_size`**
-- Returns key size in bits
-
-### Utility Functions
-
-**`generate_safe_prime(bit_length, secure=True)`**
-- Generates safe prime number
-
-**`is_strong_prime(p)`**
-- Tests if prime is cryptographically strong
-
-**`miller_rabin_test(n, k=10, secure=True)`**
-- Performs Miller-Rabin primality test
-
-**`apply_pkcs1_padding(message, target_length, padding_type='encryption')`**
-- Applies PKCS#1 v1.5 padding
-
-**`gcd(a, b)`**
-- Calculates greatest common divisor
-
-**`fast_modular_exponentiation(base, exponent, modulus)`**
-- Performs fast modular exponentiation
-
-## Examples
-
-### Web Demo
-
-```bash
-cd examples/apps/
-python3 encrypted_website.py
-# visit http://localhost:5000
-```
-
-### Simple Encryption
-
-```bash
-cd examples/
-python3 simple_encryption.py
-```
-
-### Advanced Features
-
-```bash
-cd examples/
-python3 advanced_encryption.py
-```
-
-### Basic Usage Examples
-
-```bash
-cd examples/
-python3 basic.py
-python3 advanced.py
-```
-
-## Error Handling
-
-### Common Exceptions
-
-**`ValueError`**
-- Invalid key size
-- Message too long for encryption
-- Invalid padding
-- Malformed key data
-
-**`ModuleNotFoundError`**
-- Missing Flask dependency for web demo
-
-### Error Prevention
+<details>
+<summary><strong>error prevention</strong></summary>
 
 ```python
 try:
     encrypted = rsa.encrypt_text(very_long_message)
-except ValueError as e:
-    # use encrypt_long_text instead
+except ValueError:
     encrypted_blocks = rsa.encrypt_long_text(very_long_message)
 ```
+</details>
 
-## Troubleshooting
+## troubleshooting
 
-### Common Issues
+| issue | solution |
+|-------|----------|
+| import errors | check path setup |
+| key size errors | use minimum 512-bit |
+| message too long | use `encrypt_long_text()` |
+| flask not found | `pip install flask` |
 
-1. **Import Errors**: Ensure correct path setup
-2. **Key Size Errors**: Use minimum 512-bit keys
-3. **Message Too Long**: Use `encrypt_long_text()` for large messages
-4. **Flask Not Found**: Install Flask for web demo
-
-### Debug Mode
+<details>
+<summary><strong>debug mode</strong></summary>
 
 ```python
-# enable verbose error messages
 import logging
 logging.basicConfig(level=logging.DEBUG)
 ```
+</details>
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Support
-
-For issues and questions:
-- GitHub Issues: https://github.com/ogcae/cryptoforge/issues
-- Email: c.ogcae@engineer.com
+**license:** MIT | **support:** [issues](https://github.com/ogcae/cryptoforge/issues) | **email:** c.ogcae@engineer.com
